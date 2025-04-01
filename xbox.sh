@@ -1,3 +1,4 @@
+#!/bin/bash
 # Source the your ROS version's default setup
 source /opt/ros/foxy/setup.bash
 
