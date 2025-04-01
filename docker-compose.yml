@@ -1,0 +1,9 @@
+services:
+  capstone:
+    build: .
+    container_name: capstone
+    image: capstone:latest
+    stdin_open: true  # Keep stdin open so you can interact with the container
+    tty: true  # Allocate a pseudo-TTY for interactive commands
+    volumes:
+      - .:/root/  # Mount a local directory to the container`
