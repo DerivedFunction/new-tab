@@ -1,3 +1,4 @@
+#!/bin/bash
 # Source your ROS version's default setup
 source /opt/ros/humble/setup.bash
 
