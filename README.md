@@ -7,6 +7,8 @@ Make sure the `ROS_DOMAIN_ID` is the same for all modules (NX, Laptop, NANO).
 ```sh
 echo $ROS_DOMAIN_ID # Example: 42
 export ROS_DOMAIN_ID = 42 # Only those with the same domain will ros2 topic list show the topics
+export ROS_LOCALHOST_ONLY=0 # Allow other devices to see this one on the same network
+export ROS_NETWORK_INTERFACE=wlan0
 ```
 
 To access `ros2 run ...` and `ros2 topic list`, etc you must first source ros
