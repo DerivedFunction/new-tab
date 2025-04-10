@@ -1,6 +1,6 @@
 #!/bin/bash
 # Source the your ROS version's default setup
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 
 # Source the local setup:
 source install/setup.bash
