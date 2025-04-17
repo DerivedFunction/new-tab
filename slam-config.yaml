@@ -1,0 +1,16 @@
+# slam-config.yaml
+---
+mode: online # Or 'localization' if you have a pre-existing map
+map_frame: map
+odom_frame: odom
+base_frame: base_link # Or the frame of your robot/sensor base
+
+scan_topic: /points2 # Replace with your actual point cloud topic
+
+# Optional parameters (check slam_toolbox documentation for more details)
+# min_particle_count: 500
+# max_particle_count: 3000
+# update_factor_occupied: 0.8
+# update_factor_free: 0.4
+# ... other parameters for laser/pointcloud processing
+# ros2 run slam_toolbox online_async_node --ros-args --params-file ./slam-config.yaml
