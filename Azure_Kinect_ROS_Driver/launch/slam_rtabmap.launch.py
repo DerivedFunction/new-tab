@@ -1,16 +1,13 @@
-# File: ~/NEW-TAB/azure_kinect_ros_driver/launch/kinect_rtabmap.launch.py
-
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 
 def generate_launch_description():
 
     # Paths to configuration files
-    # Corrected to use your package name 'azure_kinect_ros_driver'
     azure_kinect_ros_driver_pkg_dir = get_package_share_directory('azure_kinect_ros_driver')
     rtabmap_ros_pkg_dir = get_package_share_directory('rtabmap_ros')
     
@@ -21,15 +18,16 @@ def generate_launch_description():
     rviz_config_file = os.path.join(rtabmap_ros_pkg_dir, 'launch', 'config', 'rgbd.rviz')
 
     # Declare launch arguments
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Define parameters for the RTAB-Map nodes
     rtabmap_parameters = {
-        'frame_id': 'camera_base_link',
+        'frame_id': 'camera_base',
         'subscribe_depth': True,
         'subscribe_rgb': True,
         'subscribe_scan': False,
         'approx_sync': True,
+        'approx_sync_max_interval': 0.05,
         'use_sim_time': use_sim_time,
         'qos_image': 2,
         'qos_imu': 2,
@@ -59,14 +57,16 @@ def generate_launch_description():
             executable='robot_state_publisher',
             name='robot_state_publisher',
             output='screen',
-            parameters=[{'robot_description': open(urdf_file_path).read(),
-                         'use_sim_time': use_sim_time}]
+            parameters=[{
+                'robot_description': Command(['xacro ', urdf_file_path]),
+                'use_sim_time': use_sim_time
+            }]
         ),
 
-        # Azure Kinect ROS Driver Node - Corrected for your specific package
+        # Azure Kinect ROS Driver Node
         Node(
             package='azure_kinect_ros_driver',
-            executable='node', # Corrected executable name
+            executable='node',
             name='k4a',
             parameters=[{
                 'depth_enabled': True,
@@ -77,6 +77,7 @@ def generate_launch_description():
                 'point_cloud': True,
                 'rgb_point_cloud': True,
                 'point_cloud_in_depth_frame': False,
+                'synchronized_images_only': True,
                 'imu_rate_target': 100,
                 'use_sim_time': use_sim_time
             }],
@@ -113,38 +114,3 @@ def generate_launch_description():
             parameters=[{'use_sim_time': use_sim_time}]
         )
     ])
-    
-'''
-
-Now, from the root of your workspace (`~/NEW-TAB`), build the packages and launch the new file.
-
-1.  **Navigate to your workspace root:**
-
-    ```bash
-    cd ~/NEW-TAB
-    ```
-
-2.  **Build the workspace.** This will make ROS2 aware of your new launch file.
-
-    ```bash
-    colcon build --symlink-install --packages-select azure_kinect_ros_driver
-    ```
-
-    *(Building just the one package is faster, but a full `colcon build` will also work.)*
-
-3.  **Source the workspace:**
-
-    ```bash
-    source install/setup.bash
-    ```
-
-4.  **Launch the SLAM system:**
-
-    ```bash
-    ros2 launch azure_kinect_ros_driver kinect_rtabmap.launch.py
-    ```
-
-The system should now start correctly. RViz2 will open, and as you move the camera, you will see a 3D map being built in the `/rtabmap/cloud_map` topic and a 2D map in the `/map` topic.
- 
- 
- '''   
