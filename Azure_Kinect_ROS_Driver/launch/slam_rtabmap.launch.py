@@ -1,4 +1,4 @@
-# File: ~/NEW-TAB/Azure_Kinect_ROS_Driver/launch/kinect_rtabmap.launch.py
+# File: ~/NEW-TAB/azure_kinect_ros_driver/launch/kinect_rtabmap.launch.py
 
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -10,7 +10,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     # Paths to configuration files
-    # Corrected to use your package name 'Azure_Kinect_ROS_Driver'
+    # Corrected to use your package name 'azure_kinect_ros_driver'
     azure_kinect_ros_driver_pkg_dir = get_package_share_directory('azure_kinect_ros_driver')
     rtabmap_ros_pkg_dir = get_package_share_directory('rtabmap_ros')
     
@@ -65,8 +65,8 @@ def generate_launch_description():
 
         # Azure Kinect ROS Driver Node - Corrected for your specific package
         Node(
-            package='Azure_Kinect_ROS_Driver',
-            executable='k4a_ros_bridge_node', # Corrected executable name
+            package='azure_kinect_ros_driver',
+            executable='node', # Corrected executable name
             name='k4a',
             parameters=[{
                 'depth_enabled': True,
@@ -127,7 +127,7 @@ Now, from the root of your workspace (`~/NEW-TAB`), build the packages and launc
 2.  **Build the workspace.** This will make ROS2 aware of your new launch file.
 
     ```bash
-    colcon build --symlink-install --packages-select Azure_Kinect_ROS_Driver
+    colcon build --symlink-install --packages-select azure_kinect_ros_driver
     ```
 
     *(Building just the one package is faster, but a full `colcon build` will also work.)*
@@ -141,7 +141,7 @@ Now, from the root of your workspace (`~/NEW-TAB`), build the packages and launc
 4.  **Launch the SLAM system:**
 
     ```bash
-    ros2 launch Azure_Kinect_ROS_Driver kinect_rtabmap.launch.py
+    ros2 launch azure_kinect_ros_driver kinect_rtabmap.launch.py
     ```
 
 The system should now start correctly. RViz2 will open, and as you move the camera, you will see a 3D map being built in the `/rtabmap/cloud_map` topic and a 2D map in the `/map` topic.
