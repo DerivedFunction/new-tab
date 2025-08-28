@@ -85,7 +85,7 @@ def generate_launch_description():
                 'depth_mode': 'NFOV_UNBINNED',
                 'color_enabled': True,
                 'color_resolution': '720P',
-                'fps': 30,
+                'fps': 5,
                 'point_cloud': True,
                 'rgb_point_cloud': True,
                 'point_cloud_in_depth_frame': False,
