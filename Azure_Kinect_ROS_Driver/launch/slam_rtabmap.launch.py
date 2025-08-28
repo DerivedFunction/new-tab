@@ -4,7 +4,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
-from launch_ros.qos import QoSSensorData # Import for QoS profile
+
+# NOTE: The 'launch_ros.qos' import has been removed for compatibility.
 
 def generate_launch_description():
 
@@ -31,7 +32,7 @@ def generate_launch_description():
         'approx_sync': True,
         'approx_sync_max_interval': 0.04,
 
-        # QoS settings - Set to SensorDataQoS to better handle high-rate sensor data
+        # QoS settings: 2=SensorDataQoS. RTAB-Map understands this integer value.
         'qos_image': 2,
         'qos_imu': 2,
 
@@ -91,9 +92,7 @@ def generate_launch_description():
                 'synchronized_images_only': True,
                 'imu_rate_target': 100,
                 'use_sim_time': use_sim_time
-            }],
-            # Set QoS for the node's publishers
-            extra_arguments=[{'use_intra_process_comms': True}]
+            }]
         ),
 
         # RTAB-Map Visual Odometry Node
@@ -103,9 +102,7 @@ def generate_launch_description():
             output='screen',
             parameters=[rtabmap_parameters],
             remappings=rtabmap_remapping,
-            arguments=['--delete_db_on_start'],
-            # Set QoS for the node's subscriptions
-            extra_arguments=[{'use_intra_process_comms': True}]
+            arguments=['--delete_db_on_start']
         ),
 
         # RTAB-Map SLAM Node
@@ -115,9 +112,7 @@ def generate_launch_description():
             output='screen',
             parameters=[rtabmap_parameters],
             remappings=rtabmap_remapping,
-            arguments=['--delete_db_on_start'],
-            # Set QoS for the node's subscriptions
-            extra_arguments=[{'use_intra_process_comms': True}]
+            arguments=['--delete_db_on_start']
         ),
         
         # RViz2 Node
