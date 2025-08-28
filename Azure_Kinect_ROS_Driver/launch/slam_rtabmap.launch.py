@@ -4,6 +4,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
+from launch_ros.qos import QoSSensorData # Import for QoS profile
 
 def generate_launch_description():
 
@@ -22,28 +23,37 @@ def generate_launch_description():
 
     # Define parameters for the RTAB-Map nodes
     rtabmap_parameters = {
+        # CORE PARAMETERS
         'frame_id': 'camera_base',
         'subscribe_depth': True,
         'subscribe_rgb': True,
-        'subscribe_scan': False,
-        'approx_sync': True,
-        'approx_sync_max_interval': 0.05,
         'use_sim_time': use_sim_time,
+        'approx_sync': True,
+        'approx_sync_max_interval': 0.04,
+
+        # QoS settings - Set to SensorDataQoS to better handle high-rate sensor data
         'qos_image': 2,
         'qos_imu': 2,
-        'Reg/Strategy': '1', # 0=Vis, 1=Icp, 2=VisIcp
-        'Icp/VoxelSize': '0.05',
-        'Icp/MaxCorrespondenceDistance': '0.2',
-        'Vis/MinInliers': '15',
-        'Odom/ResetCountdown': '10',
-        'Grid/FromDepth': 'true'
+
+        # ODOMETRY PARAMETERS - Tuned for more robust visual tracking
+        'Reg/Strategy': '0',          # Use Visual Odometry
+        'Odom/Strategy': '0',         # Use Frame-to-Frame tracking
+        'Vis/MinInliers': '15',       # Minimum inliers to accept a transform
+        'Odom/ResetCountdown': '10',  # Reset odometry after 10 consecutive lost frames
+        'Vis/FeatureType': '8',       # Use ORB features (fast and patent-free)
+        'OdomF2M/MaxSize': '1000',    # Local map size for odometry
+
+        # LOOP CLOSURE & MAPPING
+        'Grid/FromDepth': 'true',     # Create occupancy grid from depth data
+        'Reg/Force3DoF': 'true',      # Force 2D-style mapping (avoids drift in height)
+        'Grid/RangeMax': '5.0'        # Max range of the depth sensor to consider for mapping
     }
 
     # Remappings to connect the Kinect driver topics to RTAB-Map's expected topics
     rtabmap_remapping = [
         ('rgb/image', '/rgb/image_raw'),
         ('rgb/camera_info', '/rgb/camera_info'),
-        ('depth/image', '/depth_to_rgb/image_raw') # Use registered depth image
+        ('depth/image', '/depth_to_rgb/image_raw')
     ]
     
     return LaunchDescription([
@@ -68,6 +78,7 @@ def generate_launch_description():
             package='azure_kinect_ros_driver',
             executable='node',
             name='k4a',
+            output='screen',
             parameters=[{
                 'depth_enabled': True,
                 'depth_mode': 'NFOV_UNBINNED',
@@ -81,7 +92,8 @@ def generate_launch_description():
                 'imu_rate_target': 100,
                 'use_sim_time': use_sim_time
             }],
-            output='screen'
+            # Set QoS for the node's publishers
+            extra_arguments=[{'use_intra_process_comms': True}]
         ),
 
         # RTAB-Map Visual Odometry Node
@@ -91,7 +103,9 @@ def generate_launch_description():
             output='screen',
             parameters=[rtabmap_parameters],
             remappings=rtabmap_remapping,
-            arguments=['--delete_db_on_start']
+            arguments=['--delete_db_on_start'],
+            # Set QoS for the node's subscriptions
+            extra_arguments=[{'use_intra_process_comms': True}]
         ),
 
         # RTAB-Map SLAM Node
@@ -101,7 +115,9 @@ def generate_launch_description():
             output='screen',
             parameters=[rtabmap_parameters],
             remappings=rtabmap_remapping,
-            arguments=['--delete_db_on_start']
+            arguments=['--delete_db_on_start'],
+            # Set QoS for the node's subscriptions
+            extra_arguments=[{'use_intra_process_comms': True}]
         ),
         
         # RViz2 Node
